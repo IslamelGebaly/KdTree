@@ -103,7 +103,7 @@ public class KdTree {
     private boolean search(TreeNode node, Point2D p) {
 
         if (node == null)
-            throw new IllegalArgumentException();
+            return false;
 
         if (node.getP().equals(p))
             return true;
@@ -211,7 +211,10 @@ public class KdTree {
         return this.size;
     }
 
-    public void insert(Point2D p) { // add the point to the set (if it is not already in the set)
+    public void insert(Point2D p) {// add the point to the set (if it is not already in the set)
+        if (p == null)
+            throw new IllegalArgumentException();
+
         if (root == null) {
             root = new TreeNode(p);
             size++;
@@ -222,7 +225,9 @@ public class KdTree {
         size++;
     }
 
-    public boolean contains(Point2D p) { // does the set contain point p?
+    public boolean contains(Point2D p) {// does the set contain point p?
+        if (p == null)
+            throw new IllegalArgumentException();
         return search(root, p);
     }
 
@@ -231,7 +236,13 @@ public class KdTree {
         traverseDraw(root);
     }
 
-    public Iterable<Point2D> range(RectHV rect) { // all points that are inside the rectangle (or on the boundary)
+    public Iterable<Point2D> range(RectHV rect) {// all points that are inside the rectangle (or on the boundary)
+        if (rect == null)
+            throw new IllegalArgumentException();
+
+        if (isEmpty())
+            return null;
+
         LinkedList<Point2D> validPoints = new LinkedList<>();
 
         rangeSearch(root, rect, validPoints);
@@ -239,6 +250,13 @@ public class KdTree {
     }
 
     public Point2D nearest(Point2D p) {
+
+        if (p == null)
+            throw new IllegalArgumentException();
+
+        if (isEmpty())
+            return null;
+
         Point2D champion = root.getP();
         Point2D new_champion = nearestNeighbor(root, p, champion);
         return new_champion;
