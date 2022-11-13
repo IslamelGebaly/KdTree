@@ -128,6 +128,36 @@ public class KdTree {
         traverseDraw(node.traverseRight());
     }
 
+    private void rangeSearch(TreeNode node, RectHV rect, LinkedList<Point2D> validPoints) {
+        if (rect.contains(node.getP()))
+            validPoints.add(node.getP());
+
+        if (node.isVertical()) {
+            if (rect.intersects(new RectHV(node.getP().x(), 0, node.getP().x(), 1))) {
+                rangeSearch(node.traverseLeft(), rect, validPoints);
+                rangeSearch(node.traverseRight(), rect, validPoints);
+            } else if (rect.xmax() <= node.getP().x()) {
+                rangeSearch(node.traverseLeft(), rect, validPoints);
+            } else if (rect.xmin() > node.getP().x())
+                rangeSearch(node.traverseRight(), rect, validPoints);
+
+            return;
+        }
+
+        if (rect.intersects(new RectHV(0, node.getP().y(), 1, node.getP().y()))) {
+            rangeSearch(node.traverseLeft(), rect, validPoints);
+            rangeSearch(node.traverseRight(), rect, validPoints);
+        } else if (rect.ymax() <= node.getP().y()) {
+            rangeSearch(node.traverseLeft(), rect, validPoints);
+        } else if (rect.ymin() > node.getP().y())
+            rangeSearch(node.traverseRight(), rect, validPoints);
+
+    }
+
+    private Point2D nearestNeighbor(TreeNode node, Point2D p, Point2D champion) {
+        
+    }
+
     public KdTree() {
         root = null;
         size = 0;
@@ -162,11 +192,14 @@ public class KdTree {
     }
 
     public Iterable<Point2D> range(RectHV rect) { // all points that are inside the rectangle (or on the boundary)
-        return new LinkedList<Point2D>();
+        LinkedList<Point2D> validPoints = new LinkedList<>();
+
+        rangeSearch(root, rect, validPoints);
+        return validPoints;
     }
 
     public Point2D nearest(Point2D p) {
-        return new Point2D(0, 0);
+
     }
 
     public static void main(String[] args) {
