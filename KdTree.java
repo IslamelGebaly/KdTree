@@ -61,6 +61,73 @@ public class KdTree {
     private TreeNode root;
     private int size;
 
+    private void insertNode(TreeNode node, Point2D p) {
+        if (node.isVertical()) {
+            if (p.x() < node.getP().x()) {
+                if (node.traverseLeft() == null) {
+                    node.insertLeft(p);
+                    return;
+                }
+                insertNode(node.traverseLeft(), p);
+                return;
+            }
+
+            if (node.traverseRight() == null) {
+                node.insertRight(p);
+                return;
+            }
+
+            insertNode(node.traverseRight(), p);
+            return;
+        }
+
+        if (p.y() < node.getP().y()) {
+            if (node.traverseLeft() == null) {
+                node.insertLeft(p);
+                return;
+            }
+
+            insertNode(node.traverseLeft(), p);
+            return;
+        }
+
+        if (node.traverseRight() == null) {
+            node.insertRight(p);
+            return;
+        }
+
+        insertNode(node.traverseRight(), p);
+
+    }
+
+    private boolean search(TreeNode node, Point2D p) {
+
+        if (node == null)
+            throw new IllegalArgumentException();
+
+        if (node.getP().equals(p))
+            return true;
+
+        if (node.isVertical()) {
+            if (p.x() < node.getP().x())
+                return search(node.traverseLeft(), p);
+            return search(node.traverseRight(), p);
+        }
+
+        if (p.y() < node.getP().y())
+            return search(node.traverseLeft(), p);
+        return search(node.traverseRight(), p);
+    }
+
+    private void traverseDraw(TreeNode node) {
+        if (node == null)
+            return;
+
+        node.getP().draw();
+        traverseDraw(node.traverseLeft());
+        traverseDraw(node.traverseRight());
+    }
+
     public KdTree() {
         root = null;
         size = 0;
@@ -75,20 +142,23 @@ public class KdTree {
     }
 
     public void insert(Point2D p) { // add the point to the set (if it is not already in the set)
-        if (root == null)
+        if (root == null) {
             root = new TreeNode(p);
-        else if (root.getP().x() < p.x()) {
-
+            size++;
+            return;
         }
+
+        insertNode(root, p);
+        size++;
     }
 
     public boolean contains(Point2D p) { // does the set contain point p?
-        return false;
+        return search(root, p);
     }
 
     public void draw() // draw all points to standard draw
     {
-        return;
+        traverseDraw(root);
     }
 
     public Iterable<Point2D> range(RectHV rect) { // all points that are inside the rectangle (or on the boundary)
