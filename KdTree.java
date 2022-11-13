@@ -10,7 +10,7 @@ public class KdTree {
         Point2D p;
         TreeNode leftNode;
         TreeNode rightNode;
-        Boolean vertical;
+        boolean vertical;
 
         TreeNode(Point2D p) {
             this.p = p;
