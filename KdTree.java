@@ -155,7 +155,47 @@ public class KdTree {
     }
 
     private Point2D nearestNeighbor(TreeNode node, Point2D p, Point2D champion) {
-        
+        Point2D potentialChampion;
+        Point2D new_champion;
+
+        if (node.traverseLeft() == null && node.traverseRight() == null)
+            return p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
+
+        if (node.isVertical()) {
+            potentialChampion = p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
+            if (p.x() < node.getP().x()) {
+                new_champion = nearestNeighbor(node.traverseLeft(), p, potentialChampion);
+                if (new_champion == potentialChampion)
+                    new_champion = nearestNeighbor(node.traverseRight(), p, potentialChampion);
+
+                return new_champion;
+            }
+
+            potentialChampion = p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
+            new_champion = nearestNeighbor(node.traverseRight(), p, potentialChampion);
+            if (new_champion == potentialChampion)
+                new_champion = nearestNeighbor(node.traverseLeft(), p, potentialChampion);
+
+            return new_champion;
+
+        }
+
+        potentialChampion = p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
+        if (p.x() < node.getP().y()) {
+            new_champion = nearestNeighbor(node.traverseLeft(), p, potentialChampion);
+            if (new_champion == potentialChampion)
+                new_champion = nearestNeighbor(node.traverseRight(), p, potentialChampion);
+
+            return new_champion;
+        }
+
+        potentialChampion = p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
+        new_champion = nearestNeighbor(node.traverseRight(), p, potentialChampion);
+        if (new_champion == potentialChampion)
+            new_champion = nearestNeighbor(node.traverseLeft(), p, potentialChampion);
+
+        return new_champion;
+
     }
 
     public KdTree() {
@@ -199,7 +239,9 @@ public class KdTree {
     }
 
     public Point2D nearest(Point2D p) {
-
+        Point2D champion = root.getP();
+        Point2D new_champion = nearestNeighbor(root, p, champion);
+        return new_champion;
     }
 
     public static void main(String[] args) {
