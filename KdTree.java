@@ -204,7 +204,7 @@ public class KdTree {
     }
 
     public boolean isEmpty() {  // is the set empty?
-        return !(root == null);
+        return root == null;
     }
 
     public int size() {  // number of points in the set

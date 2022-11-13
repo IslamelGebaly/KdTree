@@ -9,7 +9,6 @@ public class PointSET {
     // construct an empty set of points
     private TreeSet<Point2D> set;
 
-
     public PointSET() {
         set = new TreeSet<>();
     }
