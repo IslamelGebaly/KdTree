@@ -27,17 +27,11 @@ public class KdTree {
         }
 
         void insertLeft(Point2D p) {
-            if (vertical)
-                this.leftNode = new TreeNode(p, false);
-            else
-                this.leftNode = new TreeNode(p, true);
+            this.leftNode = new TreeNode(p, !this.isVertical());
         }
 
         void insertRight(Point2D p) {
-            if (vertical)
-                this.rightNode = new TreeNode(p, false);
-            else
-                this.rightNode = new TreeNode(p, true);
+            this.rightNode = new TreeNode(p, !this.isVertical());
         }
 
         TreeNode traverseLeft() {
@@ -56,6 +50,10 @@ public class KdTree {
 
         Point2D getP() {
             return this.p;
+        }
+
+        boolean isVertical() {
+            return this.vertical;
         }
 
     }
@@ -85,13 +83,12 @@ public class KdTree {
     }
 
     public boolean contains(Point2D p) { // does the set contain point p?
-        return set.contains(p);
+        return false;
     }
 
     public void draw() // draw all points to standard draw
     {
-        for (Point2D p : set)
-            p.draw();
+        return;
     }
 
     public Iterable<Point2D> range(RectHV rect) { // all points that are inside the rectangle (or on the boundary)
