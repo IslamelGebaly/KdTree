@@ -57,19 +57,14 @@ public class KdTree {
         boolean search(Point2D p) {
             if (p.equals(this.getP()))
                 return true;
-
             else if (this.compareTo(p) == 1) {
-
                 if (this.left() == null)
                     return false;
                 return this.left().search(p);
-
             } else {
-
                 if (this.right() == null)
                     return false;
                 return this.right().search(p);
-
             }
         }
 
@@ -211,14 +206,14 @@ public class KdTree {
         if (p == null)
             throw new IllegalArgumentException();
 
-        if (this.contains(p))
-            return;
-
         if (root == null) {
             root = new TreeNode(p);
             size++;
             return;
         }
+
+        if (this.contains(p))
+            return;
 
         root.insert(p);
         size++;
