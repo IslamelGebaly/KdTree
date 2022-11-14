@@ -83,7 +83,7 @@ public class KdTree {
                     if (this.left() != null)
                         validPoints.addAll(this.left().range(rect));
                     if (this.right() != null)
-                        validPoints.addAll(this.right().range(rect))
+                        validPoints.addAll(this.right().range(rect));
                 } else if (rect.xmax() < this.getP().x() && (this.left() != null)) {
                     validPoints.addAll(this.left().range(rect));
                 } else if (rect.xmin() >= this.getP().x() && this.right() != null) {
@@ -95,7 +95,7 @@ public class KdTree {
                     if (this.left() != null)
                         validPoints.addAll(this.left().range(rect));
                     if (this.right() != null)
-                        validPoints.addAll(this.right().range(rect))
+                        validPoints.addAll(this.right().range(rect));
                 } else if (rect.ymax() < this.getP().y() && (this.left() != null)) {
                     validPoints.addAll(this.left().range(rect));
                 } else if (rect.ymin() >= this.getP().y()) {
@@ -104,6 +104,55 @@ public class KdTree {
             }
 
             return validPoints;
+        }
+
+        Point2D nearestNeighbor(Point2D p) {
+            Point2D ch = this.getP();
+            Point2D pot = ch;
+
+            if (left() == null && right() == null)
+                return pot;
+            if (left() == null)
+                return this.right().nearestNeighbor(p, pot);
+            if (right() == null)
+                return this.left().nearestNeighbor(p, pot);
+
+            if (p.distanceTo(this.left().getP()) < p.distanceTo(this.right().getP())) {
+                pot = this.left().nearestNeighbor(p, ch);
+                if (ch.equals(pot))
+                    pot = this.right().nearestNeighbor(p, ch);
+            } else {
+                pot = this.right().nearestNeighbor(p, ch);
+                if (ch.equals(pot))
+                    pot = this.right().nearestNeighbor(p, ch);
+            }
+
+            return pot;
+        }
+
+        private Point2D nearestNeighbor(Point2D p, Point2D champion) {
+
+            Point2D ch = this.getP().distanceTo(p) < p.distanceTo(champion) ? this.getP() : champion;
+            Point2D pot = ch;
+
+            if (this.left() == null && this.right() == null)
+                return pot;
+            if (this.right() == null)
+                return this.left().nearestNeighbor(p, pot);
+            if (this.left() == null)
+                return this.right().left().nearestNeighbor(p, pot);
+
+            if (p.distanceTo(this.left().getP()) < p.distanceTo(this.right().getP())) {
+                pot = this.left().nearestNeighbor(p, ch);
+                if (ch.equals(pot))
+                    pot = this.right().nearestNeighbor(p, ch);
+            } else {
+                pot = this.right().nearestNeighbor(p, ch);
+                if (ch.equals(pot))
+                    pot = this.right().nearestNeighbor(p, ch);
+            }
+
+            return pot;
         }
 
         void draw() {
@@ -190,7 +239,7 @@ public class KdTree {
 
         LinkedList<Point2D> validPoints = new LinkedList<>();
 
-        validPoints.addAll(root.range(RectHV rect));
+        validPoints.addAll(root.range(rect));
         return validPoints;
     }
 
