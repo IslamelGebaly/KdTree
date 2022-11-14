@@ -103,51 +103,26 @@ public class KdTree {
             return validPoints;
         }
 
-        Point2D nearestNeighbor(Point2D p) {
-            Point2D ch = this.getP();
-            Point2D pot = ch;
-
-            if (left() == null && right() == null)
-                return pot;
-            if (left() == null)
-                return this.right().nearestNeighbor(p, pot);
-            if (right() == null)
-                return this.left().nearestNeighbor(p, pot);
-
-            if (p.distanceTo(this.left().getP()) < p.distanceTo(this.right().getP())) {
-                pot = this.left().nearestNeighbor(p, ch);
-                if (ch.equals(pot))
-                    pot = this.right().nearestNeighbor(p, ch);
-            } else {
-                pot = this.right().nearestNeighbor(p, ch);
-                if (ch.equals(pot))
-                    pot = this.right().nearestNeighbor(p, ch);
-            }
-
-            return pot;
-        }
-
         private Point2D nearestNeighbor(Point2D p, Point2D champion) {
 
-            Point2D ch = this.getP().distanceTo(p) < p.distanceTo(champion) ? this.getP() : champion;
+            Point2D ch = this.getP().distanceSquaredTo(p) < p.distanceSquaredTo(champion) ? this.getP() : champion;
             Point2D pot = ch;
 
-            if (this.left() == null && this.right() == null)
-                return pot;
-            if (this.right() == null)
-                return this.left().nearestNeighbor(p, pot);
-            if (this.left() == null)
-                return this.right().nearestNeighbor(p, pot);
+            TreeNode near;
+            TreeNode far;
 
-            if (p.distanceTo(this.left().getP()) < p.distanceTo(this.right().getP())) {
-                pot = this.left().nearestNeighbor(p, ch);
-                if (ch.equals(pot))
-                    pot = this.right().nearestNeighbor(p, ch);
+            if (this.compareTo(p) == 1) {
+                near = this.left();
+                far = this.right();
             } else {
-                pot = this.right().nearestNeighbor(p, ch);
-                if (ch.equals(pot))
-                    pot = this.right().nearestNeighbor(p, ch);
+                near = this.right();
+                far = this.left();
             }
+
+            if (near != null)
+                pot = near.nearestNeighbor(p, pot);
+            if (far != null)
+                pot = far.nearestNeighbor(p, pot);
 
             return pot;
         }
@@ -222,6 +197,7 @@ public class KdTree {
     public boolean contains(Point2D p) {// does the set contain point p?
         if (p == null)
             throw new IllegalArgumentException();
+
         return root.search(p);
     }
 
@@ -251,9 +227,7 @@ public class KdTree {
         if (isEmpty())
             return null;
 
-        Point2D champion = root.getP();
-        Point2D new_champion = root.nearestNeighbor(p, champion);
-        return new_champion;
+        return root.nearestNeighbor(p, root.getP());
     }
 
     public static void main(String[] args) {

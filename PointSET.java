@@ -64,12 +64,12 @@ public class PointSET {
         if (isEmpty())
             return null;
 
-        double min_distance = Double.POSITIVE_INFINITY;
+        double minDistance = Double.POSITIVE_INFINITY;
         Point2D nearest = p;
         for (Point2D neighbor : set) {
-            if (p.distanceTo(neighbor) < min_distance) {
+            if (p.distanceSquaredTo(neighbor) < minDistance) {
                 nearest = neighbor;
-                min_distance = p.distanceTo(neighbor);
+                minDistance = p.distanceSquaredTo(neighbor);
             }
         }
 
