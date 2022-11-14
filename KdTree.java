@@ -26,26 +26,93 @@ public class KdTree {
             this.vertical = vertical;
         }
 
-        void insertLeft(Point2D p) {
-            this.leftNode = new TreeNode(p, !this.isVertical());
+        void insert(Point2D p) {
+            if (this.compareTo(p) == 1) {
+                if (this.left() == null)
+                    this.leftNode = new TreeNode(p, !isVertical());
+                else
+                    this.left().insert(p);
+            } else {
+                if (this.right() == null)
+                    this.rightNode = new TreeNode(p, !isVertical());
+                else
+                    this.right().insert(p);
+            }
         }
 
-        void insertRight(Point2D p) {
-            this.rightNode = new TreeNode(p, !this.isVertical());
-        }
-
-        TreeNode traverseLeft() {
+        TreeNode left() {
             if (this.leftNode == null)
                 return null;
 
             return this.leftNode;
         }
 
-        TreeNode traverseRight() {
+        TreeNode right() {
             if (this.rightNode == null)
                 return null;
 
             return this.rightNode;
+        }
+
+        boolean search(Point2D p) {
+            if (p.equals(this.getP()))
+                return true;
+
+            else if (this.compareTo(p) == 1) {
+
+                if (this.left() == null)
+                    return false;
+                return this.left().search(p);
+
+            } else {
+
+                if (this.right() == null)
+                    return false;
+                return this.right().search(p);
+
+            }
+        }
+
+        LinkedList<Point2D> range(RectHV rect) {
+            LinkedList<Point2D> validPoints = new LinkedList<>();
+            if (rect.contains(this.getP()))
+                validPoints.add(this.getP());
+
+            if (this.isVertical()) {
+                if (rect.intersects(new RectHV(this.getP().x(), 0, this.getP().x(), 1))) {
+                    if (this.left() != null)
+                        validPoints.addAll(this.left().range(rect));
+                    if (this.right() != null)
+                        validPoints.addAll(this.right().range(rect))
+                } else if (rect.xmax() < this.getP().x() && (this.left() != null)) {
+                    validPoints.addAll(this.left().range(rect));
+                } else if (rect.xmin() >= this.getP().x() && this.right() != null) {
+                    validPoints.addAll(this.right().range(rect));
+                }
+            } else {
+
+                if (rect.intersects(new RectHV(0, this.getP().y(), 1, this.getP().y()))) {
+                    if (this.left() != null)
+                        validPoints.addAll(this.left().range(rect));
+                    if (this.right() != null)
+                        validPoints.addAll(this.right().range(rect))
+                } else if (rect.ymax() < this.getP().y() && (this.left() != null)) {
+                    validPoints.addAll(this.left().range(rect));
+                } else if (rect.ymin() >= this.getP().y()) {
+                    validPoints.addAll(this.right().range(rect));
+                }
+            }
+
+            return validPoints;
+        }
+
+        void draw() {
+            p.draw();
+
+            if (this.left() != null)
+                this.left().draw();
+            if (this.right() != null)
+                this.right().draw();
         }
 
         Point2D getP() {
@@ -76,146 +143,9 @@ public class KdTree {
     private TreeNode root;
     private int size;
 
-    private void insertNode(TreeNode node, Point2D p) {
-        if (node.isVertical()) {
-            if (p.x() < node.getP().x()) {
-                if (node.traverseLeft() == null) {
-                    node.insertLeft(p);
-                    return;
-                }
-                insertNode(node.traverseLeft(), p);
-                return;
-            }
-
-            if (node.traverseRight() == null) {
-                node.insertRight(p);
-                return;
-            }
-
-            insertNode(node.traverseRight(), p);
-            return;
-        }
-
-        if (p.y() < node.getP().y()) {
-            if (node.traverseLeft() == null) {
-                node.insertLeft(p);
-                return;
-            }
-
-            insertNode(node.traverseLeft(), p);
-            return;
-        }
-
-        if (node.traverseRight() == null) {
-            node.insertRight(p);
-            return;
-        }
-
-        insertNode(node.traverseRight(), p);
-
-    }
-
-    private boolean search(TreeNode node, Point2D p) {
-
-        if (node == null)
-            return false;
-
-        if (node.getP().equals(p))
-            return true;
-
-        if (node.isVertical()) {
-            if (p.x() < node.getP().x())
-                return search(node.traverseLeft(), p);
-            return search(node.traverseRight(), p);
-        }
-
-        if (p.y() < node.getP().y())
-            return search(node.traverseLeft(), p);
-        return search(node.traverseRight(), p);
-    }
-
-    private void traverseDraw(TreeNode node) {
-        if (node == null)
-            return;
-
-        node.getP().draw();
-        traverseDraw(node.traverseLeft());
-        traverseDraw(node.traverseRight());
-    }
-
-    private void rangeSearch(TreeNode node, RectHV rect, LinkedList<Point2D> validPoints) {
-        if (rect.contains(node.getP()))
-            validPoints.add(node.getP());
-
-        if (node.isVertical()) {
-            if (rect.intersects(new RectHV(node.getP().x(), 0, node.getP().x(), 1))) {
-                rangeSearch(node.traverseLeft(), rect, validPoints);
-                rangeSearch(node.traverseRight(), rect, validPoints);
-            } else if (rect.xmax() <= node.getP().x()) {
-                rangeSearch(node.traverseLeft(), rect, validPoints);
-            } else if (rect.xmin() > node.getP().x())
-                rangeSearch(node.traverseRight(), rect, validPoints);
-
-            return;
-        }
-
-        if (rect.intersects(new RectHV(0, node.getP().y(), 1, node.getP().y()))) {
-            rangeSearch(node.traverseLeft(), rect, validPoints);
-            rangeSearch(node.traverseRight(), rect, validPoints);
-        } else if (rect.ymax() <= node.getP().y()) {
-            rangeSearch(node.traverseLeft(), rect, validPoints);
-        } else if (rect.ymin() > node.getP().y())
-            rangeSearch(node.traverseRight(), rect, validPoints);
-
-    }
-
-    private Point2D nearestNeighbor(TreeNode node, Point2D p, Point2D champion) {
-        Point2D potentialChampion;
-        Point2D new_champion;
-
-        if (node.traverseLeft() == null && node.traverseRight() == null)
-            return p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
-
-        if (node.isVertical()) {
-            potentialChampion = p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
-            if (p.x() < node.getP().x()) {
-                new_champion = nearestNeighbor(node.traverseLeft(), p, potentialChampion);
-                if (new_champion == potentialChampion)
-                    new_champion = nearestNeighbor(node.traverseRight(), p, potentialChampion);
-
-                return new_champion;
-            }
-
-            potentialChampion = p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
-            new_champion = nearestNeighbor(node.traverseRight(), p, potentialChampion);
-            if (new_champion == potentialChampion)
-                new_champion = nearestNeighbor(node.traverseLeft(), p, potentialChampion);
-
-            return new_champion;
-
-        }
-
-        potentialChampion = p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
-        if (p.x() < node.getP().y()) {
-            new_champion = nearestNeighbor(node.traverseLeft(), p, potentialChampion);
-            if (new_champion == potentialChampion)
-                new_champion = nearestNeighbor(node.traverseRight(), p, potentialChampion);
-
-            return new_champion;
-        }
-
-        potentialChampion = p.distanceTo(node.getP()) < p.distanceTo(champion) ? node.getP() : champion;
-        new_champion = nearestNeighbor(node.traverseRight(), p, potentialChampion);
-        if (new_champion == potentialChampion)
-            new_champion = nearestNeighbor(node.traverseLeft(), p, potentialChampion);
-
-        return new_champion;
-
-    }
-
     public KdTree() {
-        root = null;
-        size = 0;
+        this.root = null;
+        this.size = 0;
     }
 
     public boolean isEmpty() {  // is the set empty?
@@ -236,19 +166,19 @@ public class KdTree {
             return;
         }
 
-        insertNode(root, p);
+        root.insert(p);
         size++;
     }
 
     public boolean contains(Point2D p) {// does the set contain point p?
         if (p == null)
             throw new IllegalArgumentException();
-        return search(root, p);
+        return root.search(p);
     }
 
     public void draw() // draw all points to standard draw
     {
-        traverseDraw(root);
+        root.draw();
     }
 
     public Iterable<Point2D> range(RectHV rect) {// all points that are inside the rectangle (or on the boundary)
@@ -260,7 +190,7 @@ public class KdTree {
 
         LinkedList<Point2D> validPoints = new LinkedList<>();
 
-        rangeSearch(root, rect, validPoints);
+        validPoints.addAll(root.range(RectHV rect));
         return validPoints;
     }
 
@@ -273,7 +203,7 @@ public class KdTree {
             return null;
 
         Point2D champion = root.getP();
-        Point2D new_champion = nearestNeighbor(root, p, champion);
+        Point2D new_champion = root.nearestNeighbor(p, champion);
         return new_champion;
     }
 
