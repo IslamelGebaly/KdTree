@@ -75,8 +75,10 @@ public class KdTree {
 
         LinkedList<Point2D> range(RectHV rect) {
             LinkedList<Point2D> validPoints = new LinkedList<>();
+
             if (rect.contains(this.getP()))
                 validPoints.add(this.getP());
+
 
             if (this.isVertical()) {
                 if (rect.intersects(new RectHV(this.getP().x(), 0, this.getP().x(), 1))) {
@@ -98,7 +100,7 @@ public class KdTree {
                         validPoints.addAll(this.right().range(rect));
                 } else if (rect.ymax() < this.getP().y() && (this.left() != null)) {
                     validPoints.addAll(this.left().range(rect));
-                } else if (rect.ymin() >= this.getP().y()) {
+                } else if (rect.ymin() >= this.getP().y() && (this.right() != null)) {
                     validPoints.addAll(this.right().range(rect));
                 }
             }
@@ -140,7 +142,7 @@ public class KdTree {
             if (this.right() == null)
                 return this.left().nearestNeighbor(p, pot);
             if (this.left() == null)
-                return this.right().left().nearestNeighbor(p, pot);
+                return this.right().nearestNeighbor(p, pot);
 
             if (p.distanceTo(this.left().getP()) < p.distanceTo(this.right().getP())) {
                 pot = this.left().nearestNeighbor(p, ch);
