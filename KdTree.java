@@ -211,6 +211,9 @@ public class KdTree {
         if (p == null)
             throw new IllegalArgumentException();
 
+        if (this.contains(p))
+            return;
+
         if (root == null) {
             root = new TreeNode(p);
             size++;
