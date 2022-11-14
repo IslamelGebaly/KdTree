@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 public class KdTree {
 
-    private class TreeNode {
+    private class TreeNode implements Comparable<Point2D> {
 
         Point2D p;
         TreeNode leftNode;
@@ -56,6 +56,21 @@ public class KdTree {
             return this.vertical;
         }
 
+        public int compareTo(Point2D that) {
+            if (isVertical()) {
+                if (this.getP().x() > that.x())
+                    return 1;
+                if (this.getP().x() < that.x())
+                    return -1;
+                return 0;
+            }
+
+            if (this.getP().y() > that.y())
+                return 1;
+            if (this.getP().y() < that.y())
+                return -1;
+            return 0;
+        }
     }
 
     private TreeNode root;
